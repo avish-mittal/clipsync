@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ClipSync — Real-Time Cross-Device Clipboard & File Drop</title>
+  <meta name="description" content="Lightweight, zero-bloat, self-hosted cross-device clipboard and file drop engine with sub-millisecond latency.">
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="brand-section">
+      <div class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 90 90" width="22" height="22" style="display: block;">
+          <defs>
+            <linearGradient id="navClipGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#34D399" />
+              <stop offset="100%" stop-color="#059669" />
+            </linearGradient>
+          </defs>
+          <path d="M 45 5 L 78 24 L 78 62 L 45 81 L 12 62 L 12 38 L 24 45 L 24 55 L 45 67 L 66 55 L 66 31 L 45 19 L 28 29 L 16 22 Z" fill="url(#navClipGreen)"/>
+          <circle cx="45" cy="43" r="6" fill="#10B981" />
+        </svg>
+      </div>
+      <h1 class="brand-title">
+        ClipSync
+        <span class="brand-version">v1.0</span>
+      </h1>
+    </div>
+
+    <div class="top-actions">
+      <!-- Connection Status & Peer Count -->
+      <div class="status-pill" id="status-container" title="WebSocket Network Connection">
+        <span class="status-dot disconnected" id="status-dot"></span>
+        <span id="status-text">Connecting...</span>
+        <span style="color: var(--border-color-focus);">•</span>
+        <span id="peer-count-text">1 device</span>
+      </div>
+
+      <!-- QR Code / Mobile Connect Button -->
+      <button class="btn" id="qr-btn" title="Connect Mobile Phone via QR Code">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Connect Phone</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Dashboard -->
+  <main class="main-container">
+    
+    <!-- Input / Quick Paste Section -->
+    <section class="input-section" id="drop-zone">
+      <textarea 
+        id="input-area" 
+        class="input-textarea" 
+        placeholder="Type or paste anything (Ctrl+V), or drop a file to broadcast instantly..." 
+        rows="3"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="input-toolbar">
+        <div class="input-hints">
+          <span>Press <span class="kbd">Ctrl</span>+<span class="kbd">V</span> anywhere to sync</span>
+          <span style="display: inline-block;">•</span>
+          <span><span class="kbd">Ctrl</span>+<span class="kbd">↵</span> to send</span>
+        </div>
+
+        <div class="toolbar-actions">
+          <input type="file" id="file-input" multiple>
+          <button class="btn" id="upload-btn" title="Choose file to drop">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Attach File</span>
+          </button>
+          <button class="btn btn-primary" id="broadcast-btn">
+            <span>Broadcast</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clipboard Feed Section -->
+    <section class="feed-section">
+      <div class="feed-header">
+        <div class="feed-title-wrap">
+          <span class="feed-title">Recent Clips</span>
+          <span class="feed-count" id="feed-count">0</span>
+        </div>
+
+        <div class="feed-actions">
+          <button class="btn btn-danger" id="clear-btn" title="Clear all clip history">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+            <span>Clear History</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Feed List Container -->
+      <div class="feed-list" id="feed-list"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+        </div>
+        <div class="empty-title">No clips in history</div>
+        <div class="empty-desc">
+          Hit <span class="kbd">Ctrl</span>+<span class="kbd">V</span> anywhere, type a note, or drag and drop a file to share with connected devices.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Drag and Drop Fullscreen Overlay -->
+  <div class="drop-overlay" id="drop-overlay">
+    <div class="drop-overlay-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="drop-overlay-text">Drop file to broadcast</div>
+    <div class="drop-overlay-sub">Transfers instantly to all connected peers on your network</div>
+  </div>
+
+  <!-- QR Code Modal -->
+  <div class="modal-backdrop" id="qr-modal">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="qr-modal-title">Connect Mobile Device</h2>
+        <button class="btn btn-icon" id="close-qr-btn" title="Close modal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="qr-container">
+          <img id="qr-image" src="" alt="ClipSync QR Code" />
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); text-align: center;">
+          Point your phone camera at the QR code to join this ClipSync session on the same Wi-Fi.
+        </p>
+        <div class="qr-address-row">
+          <span class="qr-address-text" id="qr-url-text">http://localhost:4040</span>
+          <button class="btn btn-icon" id="copy-qr-url-btn" title="Copy URL">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Application Script -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

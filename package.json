@@ -1,0 +1,29 @@
+{
+  "name": "clipsync",
+  "version": "1.0.0",
+  "description": "Lightweight, zero-bloat, self-hosted cross-device clipboard and file drop engine",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "keywords": [
+    "clipboard",
+    "sync",
+    "cross-device",
+    "file-drop",
+    "real-time",
+    "websocket",
+    "lan"
+  ],
+  "author": "ClipSync Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "qrcode": "^1.5.4",
+    "ws": "^8.18.0"
+  }
+}

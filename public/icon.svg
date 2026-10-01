@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90" width="100%" height="100%">
+  <defs>
+    <linearGradient id="clipGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  <path d="M 45 5 L 78 24 L 78 62 L 45 81 L 12 62 L 12 38 L 24 45 L 24 55 L 45 67 L 66 55 L 66 31 L 45 19 L 28 29 L 16 22 Z" fill="url(#clipGreen)"/>
+  <circle cx="45" cy="43" r="6" fill="#10B981" />
+</svg>
