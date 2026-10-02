@@ -44,6 +44,12 @@ ClipSync allows any device on the same local network (laptops, phones, tablets) 
     +-----------------+      +-----------------+      +-----------------+
 ```
 
+### Run with Docker Compose
+```bash
+docker compose up -d
+Open http://localhost:3000 in your browser.
+```
+
 ---
 
 ## ✨ Features
