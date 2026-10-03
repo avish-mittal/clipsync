@@ -11,12 +11,32 @@ import {
   formatBytes,
 } from './clipboard.js';
 
+// LocalStorage key for auto-copy preference
+const AUTOCOPY_KEY = 'clipsync_autocopy';
+
+function getAutoCopyPreference() {
+  try {
+    return localStorage.getItem(AUTOCOPY_KEY) === 'true';
+  } catch (e) {
+    return false;
+  }
+}
+
+function setAutoCopyPreference(enabled) {
+  try {
+    localStorage.setItem(AUTOCOPY_KEY, enabled ? 'true' : 'false');
+  } catch (e) {
+    console.warn('[ClipSync] Unable to persist autocopy preference:', e);
+  }
+}
+
 // Application State
 const state = {
   items: [],
   peerCount: 1,
   serverInfo: null,
   isUploading: false,
+  autoCopy: getAutoCopyPreference(),
 };
 
 // DOM Elements
@@ -24,6 +44,8 @@ const elements = {
   statusDot: document.getElementById('status-dot'),
   statusText: document.getElementById('status-text'),
   peerCountText: document.getElementById('peer-count-text'),
+  autocopyToggle: document.getElementById('autocopy-toggle'),
+  autocopyContainer: document.getElementById('autocopy-container'),
   feedList: document.getElementById('feed-list'),
   feedCount: document.getElementById('feed-count'),
   emptyState: document.getElementById('empty-state'),
@@ -47,7 +69,7 @@ const elements = {
  */
 export function showToast(message, type = 'info', duration = 2500) {
   const toast = document.createElement('div');
-  toast.className = 'toast';
+  toast.className = `toast toast-${type}`;
 
   const icons = {
     success: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>`,
@@ -435,6 +457,7 @@ function initWebSocketListeners() {
     // Add to top of local items
     state.items = [item, ...state.items.filter((i) => i.id !== item.id)];
     renderFeed();
+    handleAutoCopy(item);
   });
 
   socket.on('sync:delete', (data) => {
@@ -450,9 +473,53 @@ function initWebSocketListeners() {
 }
 
 /**
+ * Automatically copy incoming text if feature is enabled
+ */
+function handleAutoCopy(item) {
+  if (!state.autoCopy || !item) return;
+
+  const isText = item.type === 'TEXT' || item.type === 'CODE' || item.type === 'LINK';
+  if (!isText || typeof item.content !== 'string' || !item.content) return;
+
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard
+      .writeText(item.content)
+      .then(() => {
+        triggerAutoCopyVisualIndicator();
+        showToast('Copied!', 'success', 1500);
+      })
+      .catch((err) => {
+        console.warn('[ClipSync] Auto-copy to clipboard failed:', err?.message || err);
+      });
+  } else {
+    console.warn('[ClipSync] Web Clipboard API is unavailable in current context');
+  }
+}
+
+/**
+ * Flash visual indicator on auto-copy toggle for 1.5s
+ */
+function triggerAutoCopyVisualIndicator() {
+  if (!elements.autocopyContainer) return;
+  elements.autocopyContainer.classList.add('flash-success');
+  setTimeout(() => {
+    elements.autocopyContainer.classList.remove('flash-success');
+  }, 1500);
+}
+
+/**
  * Initialize event bindings
  */
 function initEventBindings() {
+  // Auto-copy toggle
+  if (elements.autocopyToggle) {
+    elements.autocopyToggle.checked = state.autoCopy;
+    elements.autocopyToggle.addEventListener('change', (e) => {
+      state.autoCopy = e.target.checked;
+      setAutoCopyPreference(state.autoCopy);
+    });
+  }
+
   // Global paste handler
   window.addEventListener('paste', handleGlobalPaste);
 

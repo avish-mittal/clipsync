@@ -1,6 +1,6 @@
 {
   "name": "clipsync",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Lightweight, zero-bloat, self-hosted cross-device clipboard and file drop engine",
   "main": "server/index.js",
   "type": "module",

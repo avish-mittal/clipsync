@@ -55,6 +55,7 @@ Open http://localhost:3000 in your browser.
 ## ✨ Features
 
 - **Sub-Millisecond Real-Time Sync**: Instant broadcasting using native WebSockets (`ws`).
+- **Auto-Copy to System Clipboard (v1.1)**: Incoming text clips are automatically written to your system clipboard when enabled, featuring persistent toggle state and tactile green visual feedback.
 - **Keyboard-First UX**: Press `Ctrl+V` or `Cmd+V` anywhere on the page to instantly broadcast text or images. Press `Ctrl+Enter` to broadcast typed notes.
 - **Smart Content Classification**: Automatically identifies and categorizes content into `TEXT`, `CODE`, `LINK`, `IMAGE`, or `FILE`.
 - **Drag & Drop Anywhere**: Drop any file onto the window to upload and distribute to all connected peers.
@@ -184,5 +185,12 @@ node server/test-integration.js
 
 ---
 
+## 📝 Changelog
+
+See detailed release history in [CHANGELOG.md](CHANGELOG.md).
+
+---
+
 ## 📄 License
 MIT
+

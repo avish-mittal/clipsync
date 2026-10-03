@@ -51,7 +51,7 @@ export function createRouter(wsHandler) {
 
     res.json({
       name: 'ClipSync Server',
-      version: '1.0.0',
+      version: '1.1.0',
       port: CONFIG.PORT,
       primaryIp,
       primaryUrl,

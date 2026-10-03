@@ -36,11 +36,20 @@
       </div>
       <h1 class="brand-title">
         ClipSync
-        <span class="brand-version">v1.0</span>
+        <span class="brand-version">v1.1</span>
       </h1>
     </div>
 
     <div class="top-actions">
+      <!-- Auto-copy incoming text toggle -->
+      <label class="toggle-container" id="autocopy-container" title="Automatically copy incoming text to system clipboard">
+        <input type="checkbox" id="autocopy-toggle" class="toggle-input">
+        <span class="toggle-track">
+          <span class="toggle-thumb"></span>
+        </span>
+        <span class="toggle-label">Auto-copy incoming text</span>
+      </label>
+
       <!-- Connection Status & Peer Count -->
       <div class="status-pill" id="status-container" title="WebSocket Network Connection">
         <span class="status-dot disconnected" id="status-dot"></span>
